@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #9646ae, #9646ae);
+        }
+
+        .container {
+            background-color: #9646ae;
+            color: #fff;
+            text-align: center;
+            padding: -1px;
+            font-family: 'Arial', sans-serif;
+            font-size: 24px;
+            height: 100px;
+        }
+
+        #messages {
+            position: fixed;
+            left: 0;
+            top: 80px;
+            width: 100%;
+            height: calc(100% - 130px);
+            background: linear-gradient(to bottom, #f2eded, #d8c8c8, #dccaca);
+            overflow-y: auto;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        #sendMsg {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            background: #e387d8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        #msgTxt {
+            width: calc(100% - 100px);
+            height: 100%;
+            padding-left: 10px;
+            box-sizing: border-box;
+        }
+
+        #msgBtn {
+            width: 100px;
+            height: 100%;
+            background: #9646ae;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #msgBtn:hover {
+            background: #5B7553;
+        }
+
+        #fileUpload {
+            display: none;
+        }
+
+        #uploadLabel {
+            width: 30px;
+            height: 30px;
+            background: #9646ae;
+            color: #b966b9;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        #uploadLabel:hover {
+            background: #b563b5;
+        }
+
+        .outer {
+            width: 100%;
+            margin-top: 10px;
+            display: flex;
+        }
+
+        #inner {
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 10px;
+        }
+
+        .me {
+            background: #9646ae;
+            color: #fff;
+        }
+
+        .notMe {
+            background: #FFF;
+            color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 style="font-family: 'YourCustomFont', sans-serif;">Auctify Chat</h1>
+    </div>
+
+    <div id="messages"></div>
+
+    <div id="sendMsg">
+        <input type="text" id="msgTxt" placeholder="ENTER YOUR MSG...">
+        <input type="button" id="msgBtn" value="Send" onclick="module.sendMsg()">
+        <label id="uploadLabel" for="fileUpload">📁</label>
+        <input type="file" id="fileUpload">
+    </div>
+    <script>
+        module = {};
+    </script>
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getDatabase, ref, set, remove, onChildAdded, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1n15jqLRWVPm4dCeJ33fNbzeLh3UjdVo",
+            authDomain: "chatapp-b2c5c.firebaseapp.com",
+            databaseURL: "https://chatapp-b2c5c-default-rtdb.firebaseio.com",
+            projectId: "chatapp-b2c5c",
+            storageBucket: "chatapp-b2c5c.appspot.com",
+            messagingSenderId: "371377004760",
+            appId: "1:371377004760:web:b7a9bfdcf1a4fdab6377ad"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+
+
+        var msgTxt = document.getElementById('msgTxt');
+        var sender;
+        if (sessionStorage.getItem('sender')) {
+            sender = sessionStorage.getItem('sender');
+        } else {
+            sender = prompt('PLEASE ENTER YOUR NAME');
+            sessionStorage.setItem('sender', sender);
+        }
+
+        module.sendMsg = function sendMsg() {
+            var msg = msgTxt.value;
+            var timestamp = new Date().getTime();
+            var fileInput = document.getElementById('fileUpload');
+            var file = fileInput.files[0];
+
+            if (file) {
+
+                const filename = timestamp + '-' + file.name;
+                const fileRef = child(storageRef, filename);
+
+                uploadBytes(fileRef, file).then((snapshot) => {
+
+                    set(ref(db, "messages/" + timestamp), {
+                        msg: msg,
+                        sender: sender,
+                        fileUrl: getDownloadURL(fileRef)
+                    });
+                    msgTxt.value = "";
+                }).catch((error) => {
+                    console.error('Error uploading file:', error);
+                });
+            } else {
+
+                set(ref(db, "messages/" + timestamp), {
+                    msg: msg,
+                    sender: sender
+                });
+                msgTxt.value = "";
+            }
+        }
+
+
+        onChildAdded(ref(db, "messages"), (data) => {
+            if (data.val().sender == sender) {
+                messages.innerHTML += "<div style=justify-content:end class=outer id=" + data.key + "><div id=inner class=me>you : " + data.val().msg + "<button id=dltMsg onclick=module.dltMsg(" + data.key + ")>DELETE</button></div></div>";
+            } else {
+                messages.innerHTML += "<div class=outer id=" + data.key + "><div id=inner class=notMe>" + data.val().sender + " : " + data.val().msg + "</div></div>";
+            }
+        })
+
+        module.dltMsg = function dltMsg(key) {
+            remove(ref(db, "messages/" + key));
+        }
+
+        onChildRemoved(ref(db, "messages"), (data) => {
+            var msgBox = document.getElementById(data.key);
+            messages.removeChild(msgBox);
+        })
+    </script>
+</body>
+
+</html>

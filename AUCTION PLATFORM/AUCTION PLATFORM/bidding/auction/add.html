@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Page Title</title>
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet">
+  <link href="css/donate.css" rel="stylesheet" />
+
+</head>
+<style>
+  * {
+    text-decoration: none;
+    list-style: none;
+    font-family: 'Dosis', sans-serif;
+  }
+
+  body {
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    flex-grow: 0;
+    background-color: #3B18FB;
+    color: white;
+    width: 100%;
+    text-align: center;
+    text-shadow: 5px 5px 5px black;
+  }
+
+  .content {
+    flex-grow: 2;
+    width: 100%;
+    text-align: center;
+  }
+
+  .formContainer {
+    background-color: LightSkyBlue;
+    color: white;
+    width: 30%;
+    height: auto;
+    border: 1px solid black;
+    padding: 20px;
+    box-shadow: 5px 5px 5px black;
+    margin: auto;
+    margin-top: 40px;
+    margin-bottom: 40px;
+  }
+
+  .formContainer h2 {
+    text-shadow: 2px 2px 2px black;
+    margin: 5px;
+    margin-top: 0;
+  }
+
+  input,
+  select,
+  .comments {
+    width: 75%;
+    text-align: center;
+    font-size: 1.2em;
+    margin-top: 5px;
+  }
+
+  .species {
+    margin: auto;
+    padding: auto;
+  }
+
+  .uploadBtn,
+  .submitBtn {
+    margin-top: 10px;
+    width: 75%;
+    font-size: 1.2em;
+  }
+
+  .uploadBtn {
+    margin-bottom: 20px;
+  }
+
+  .addedPets {
+    flex-grow: 1;
+    width: 100%;
+    text-align: center;
+    border-top: 1px solid black;
+  }
+
+  .mainFooter {
+    flex-grow: 0;
+    background-color: Darkblue;
+    width: 100%;
+    text-align: center;
+    color: white;
+  }
+
+  .remove {
+    display: block;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  .petContainer {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: center;
+    flex-flow: row wrap;
+  }
+
+  .box {
+    margin-bottom: 20px;
+    width: 25%;
+    border: 1px solid black;
+    box-shadow: 5px 5px 5px;
+    border-radius: 20px;
+    margin: 25px;
+    word-wrap: break-word;
+    text-align: left;
+  }
+
+  .box p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 20px;
+  }
+
+  .box:link {
+    color: #c00
+  }
+
+  .box:visited {
+    color: #0c0
+  }
+
+  .box:hover {
+    color: #00c
+  }
+
+  .box:active {
+    color: #ccc
+  }
+
+  .layOver {
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    display: none;
+    /* Hide the layOver by default */
+  }
+
+  .layOverContent {
+    margin: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: 50%;
+    background-color: white;
+    text-align: left;
+    font-size: 1.3em;
+    padding: 25px;
+    border-radius: 20px;
+  }
+
+  .layOverContent button {
+    display: none;
+  }
+
+  .petImage {
+    max-width: 50%;
+    height: auto;
+    margin-top: 10px;
+  }
+</style>
+
+<body>
+
+  <header>
+    <h1 class="headerTitle">Product Auction Page</h1>
+    <nav></nav>
+  </header>
+  <div class="content">
+
+    <div class="formContainer">
+      <form>
+        <h2>Enter Product Information</h2> <br> Product Name:<br>
+
+        <input class="" type="text">
+
+        <br>Starting Rate:<br>
+        <input class="location" type="text">
+        <br>Product Description<br>
+        <textarea type="text" class="comments"></textarea>
+        <input type="reset">
+      </form>
+      <input type="file" id="fileInput" style="display: none;" />
+      <button class="submitBtn" onclick="addProduct()">Add</button>
+      <input type="file" id="fileInput" style="display: none;" />
+      <button class="uploadBtn" onclick="document.getElementById('fileInput').click();">Upload Photo</button>
+    </div>
+  </div>
+
+
+  <div class="addedPets">
+    <h2>Added Product</h2>
+    <h3>*Click on pet to view additional details</h3>
+    <div class="petContainer"></div>
+  </div>
+  <div class="layOver">
+    <div class="layOverContent"></div>
+  </div>
+
+  <script type="text/javascript" src="js/donate.js"></script>
+  <script>
+    function addProduct() {
+
+      var name = $("input[type='text']").val();
+      var species = $(".species").val();
+      var age = $(".age").val();
+      var location = $(".location").val();
+      var comments = $(".comments").val();
+      var file = $("#fileInput")[0].files[0];
+
+
+      var newPet = $("<div class='pet'>").html("<p>Name: " + name + "</p><p>Species: " + species + "</p><p>Age: " + age + "</p><p>Location: " + location + "</p><p>Comments: " + comments + "</p>");
+
+
+      $(".petContainer").append(newPet);
+
+
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          var img = $("<img>").attr("src", e.target.result).attr("alt", "Selected Photo");
+          $(".petContainer").append(img);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+    $(() => {
+      $(".uploadBtn").on("click", function () {
+
+        $("#fileInput").click();
+      });
+      $("#fileInput").on("change", function () {
+
+        var selectedFile = this.files[0];
+
+        alert("Selected file: " + selectedFile.name);
+      });
+      let $select = $(".age");
+      for (var i = 1; i < 30; i++) {
+        $select.append($("<option></option>").val(i).html(i));
+      }
+
+      let $layOver = $('.layOver');
+      $layOver.hide();
+
+      $(".submitBtn").on("click", function () {
+        let nameInput = $('.name').val();
+        let speciesInput = $(".species").val();
+        let ageInput = $(".age").val();
+        let locationInput = $(".location").val();
+        let commentsInput = $('.comments').val();
+
+        let $thisEntry = $(".petContainer");
+
+        if (nameInput === "" || speciesInput === "" || ageInput === "" || locationInput === "") {
+          alert("Please add information");
+        } else {
+          let userInput = $('<div class="box"><p>' + new Date() + ' <br><br>Name:  ' + nameInput + '<br>Species: ' + speciesInput + '<br> Age: ' + ageInput + '<br>Location: ' + locationInput + '<br>Comments: ' + commentsInput + '</p><button class="remove">Remove</button></div>');
+          $thisEntry.append(userInput);
+          alert("Your Pet has been added. Thank you!");
+          clear($('.name'));
+          clear($('.species'));
+          clear($('.age'));
+          clear($('.location'));
+          clear($('.comments'));
+        }
+
+        $(".remove").click(function () {
+          $(this).parent().remove();
+        });
+
+        $(".box").click(function () {
+          let $addedContent = $(this).children();
+          $('.layOverContent').children().remove();
+          $($addedContent).clone().prependTo($('.layOverContent'));
+          $layOver.show();
+        });
+      });
+
+      function goToGallery() {
+
+        alert("Redirecting to the gallery page...");
+      }
+
+      function myFunction() {
+        let x = document.createElement("INPUT");
+        x.setAttribute("type", "file");
+        $(".formContainer").append(x);
+        $(".uploadBtn").remove();
+      }
+
+
+      function clear(x) {
+        x.val("");
+      }
+    });
+
+    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+    function handleFileSelect(event) {
+      const fileInput = event.target;
+      const file = fileInput.files[0];
+
+      if (file) {
+
+        console.log('File selected:', file.name);
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const imgElement = document.createElement('img');
+          imgElement.src = e.target.result;
+          document.querySelector('.layOverContent').appendChild(imgElement);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+  </script>
+</body>
+
+</html>
